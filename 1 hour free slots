@@ -1,0 +1,26 @@
+public static List<int[]> findSlots(List<List<int[]>> schedules) {
+    int[] timeline = new int[25];
+
+    
+    for (List<int[]> team : schedules) {
+        for (int[] interval : team) {
+            int start = Math.max(0, interval[0]);  // no start time should be less than 0 
+            int end = Math.min(24, interval[1]);   // no end time should be greater than 24
+
+            if (start < 24) timeline[start]++;        
+            if (end < 24) timeline[end]--;
+        }
+    }
+
+    int active = 0;
+    List<int[]> result = new ArrayList<>();
+
+    for (int h = 0; h < 24; h++) {
+        active += timeline[h];           // doing prefix sum  to see how many teams are busy at each hour
+        if (active == 0 && h + 1 <= 24) {
+            result.add(new int[]{h, h + 1});    // If no team is busy and next hour is still within 24, this is a 1hour free slot{h,h+1}.
+        }
+    }
+
+    return result;        
+}
