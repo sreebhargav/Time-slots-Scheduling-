@@ -1,0 +1,41 @@
+public static Map<String, Object> findBestKHourSlot(List<List<int[]>> schedules, int[] members, int K) {
+    int[] availability = new int[24];               // to store how many members are available at each hour
+
+    for (int i = 0; i < schedules.size(); i++) {
+        boolean[] busy = new boolean[24];             // to mark hours when current team is busy
+
+        // Mark busy hours for current team
+        for (int[] interval : schedules.get(i)) {
+            int start = Math.max(0, interval[0]);     // Prevent going before 0
+            int end = Math.min(24, interval[1]);      // Prevent going above 24
+            for (int h = start; h < end; h++) busy[h] = true;
+        }
+
+                                                 // If team is free during an hour, add their members to availability
+        for (int h = 0; h < 24; h++) {
+            if (!busy[h]) availability[h] += members[i];
+        }
+    }
+
+    
+    int max = 0, start = 0, sum = 0;
+
+     
+    for (int h = 0; h < K; h++) sum += availability[h];
+    max = sum;                                             // sum for the first K-hour window
+
+    // Slide the window from hour 1 to 24 - K
+    for (int h = 1; h <= 24 - K; h++) {
+        sum = sum - availability[h - 1] + availability[h + K - 1];      // Adjust window
+        if (sum > max) {
+            max = sum;
+            start = h;
+        }
+    }
+
+   
+    Map<String, Object> res = new HashMap<>();              // result map
+    res.put("time_slot", new int[]{start, start + K});     // Best time block
+    res.put("total_members", max);                         // Max people available
+    return res;
+}
